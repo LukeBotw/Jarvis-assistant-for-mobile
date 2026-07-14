@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jarvis AI Demo – PWA Ready</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Manifest for “Add to Home Screen” (optional but recommended) -->
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <!-- Full‑screen camera feed (hidden behind the orb) -->
+  <video id="camera-feed" autoplay playsinline muted></video>
+
+  <!-- Central container for the orb and particle ring -->
+  <div id="orb-container">
+    <!-- The pulsing orb -->
+    <div id="orb"></div>
+
+    <!-- The static blue ring -->
+    <div id="orb-ring"></div>
+
+    <!-- Canvas for the revolving Saturn‑like particle ring -->
+    <canvas id="particle-canvas"></canvas>
+  </div>
+
+  <!-- Controls -->
+  <div id="controls">
+    <button id="mic-btn">🎙️ Start Mic</button>
+    <button id="stop-mic-btn" disabled>🛑 Stop Mic</button>
+    <button id="camera-btn">📷 Start Camera</button>
+  </div>
+
+  <!-- Placeholder for AI responses (text) -->
+  <div id="response"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>

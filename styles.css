@@ -1,0 +1,129 @@
+
+/* ------------------------------------------------------------------
+   Basic media handling – camera & microphone
+------------------------------------------------------------------- */
+const video = document.getElementById('camera-feed');
+const micBtn = document.getElementById('mic-btn');
+const stopMicBtn = document.getElementById('stop-mic-btn');
+const cameraBtn = document.getElementById('camera-btn');
+const responseEl = document.getElementById('response');
+
+let mediaRecorder;
+let audioChunks = [];
+
+/* Start camera */
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: false
+    });
+    video.srcObject = stream;
+  } catch (err) {
+    console.error('Camera error:', err);
+    alert('Unable to access camera – please enable permissions.');
+  }
+}
+
+/* Start microphone */
+async function startMic() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: false
+    });
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+
+    mediaRecorder.ondataavailable = e => {
+      if (e.data.size > 0) audioChunks.push(e.data);
+    };
+
+    mediaRecorder.onstop = async () => {
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      // Placeholder: send audioBlob to your AI backend for transcription
+      // Here we simply log the size and show a dummy response
+      console.log('Audio captured, size:', audioBlob.size);
+      responseEl.textContent = '🎤 Mic captured audio (demo).';
+    };
+
+    mediaRecorder.start();
+    micBtn.disabled = true;
+    stopMicBtn.disabled = false;
+  } catch (err) {
+    console.error('Microphone error:', err);
+    alert('Unable to access microphone – please enable permissions.');
+  }
+}
+
+/* Stop microphone */
+function stopMic() {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+    micBtn.disabled = false;
+    stopMicBtn.disabled = true;
+  }
+}
+
+/* Wire up buttons */
+cameraBtn.addEventListener('click', startCamera);
+micBtn.addEventListener('click', startMic);
+stopMicBtn.addEventListener('click', stopMic);
+
+/* ------------------------------------------------------------------
+   Particle ring – Saturn‑like orbiting effect
+------------------------------------------------------------------- */
+const canvas = document.getElementById('particle-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function initParticles() {
+  const num = 80;          // number of particles
+  const radius = 200;      // orbit radius
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+
+  for (let i = 0; i < num; i++) {
+    const angle = (i / num) * Math.PI * 2;
+    const speed = 0.0015 + Math.random() * 0.002; // radians per frame
+    particles.push({
+      angle,
+      radius,
+      speed,
+      size: 4 + Math.random() * 4,
+      color: rgba(0, 102, 255, ${0.6 + Math.random() * 0.4})
+    });
+  }
+}
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+initParticles();
+
+/* Animation loop */
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  particles.forEach(p => {
+    // Update angle
+    p.angle += p.speed;
+    if (p.angle > Math.PI * 2) p.angle -= Math.PI * 2;
+
+    // Compute position
+    const x = canvas.width / 2 + Math.cos(p.angle) * p.radius;
+    const y = canvas.height / 2 + Math.sin(p.angle) * p.radius;
+
+    // Draw particle
+    ctx.beginPath();
+    ctx.arc(x, y, p.size, 0, Math.PI * 2);
+    ctx.fillStyle = p.color;
+    ctx.fill();
+  });
+
+  requestAnimationFrame(animate);
+}
+animate();
